@@ -1,0 +1,36 @@
+---
+title: "Title"
+author: "Ramon Snellen"
+format: pdf
+pdf:
+  documentclass: article
+  cite-method: biblatex
+editor: visual
+include-in-header:
+  text: |
+    \addtokomafont{disposition}{\rmfamily}
+pdf-engine: xelatex
+cap-location: top
+toc: true
+toc-title: Contents
+number-sections: true
+mainfont: Helvetica
+setspace:
+  linestretch: 1.25
+fig-align: center
+table-align: center
+fig-pos: H
+table-pos: H
+execute:
+  echo: true
+  warning: false
+  eval: true
+code-line-numbers: false
+colorlinks: true
+code-block-bg: darkgray
+df-print: default
+highlight-style: arrow-dark
+biblio-title: References
+---
+
+\clearpage
