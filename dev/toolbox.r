@@ -131,3 +131,54 @@ itElasticNetMM <- function(mX, vY, vBeta, dEps, dAlpha, dLambda) {
   
   return(vBetaUpdate)
 }
+#' Run the full MM
+#' 
+#' @param mX matrix, the predictor's data
+#' @param vY vector, the vector of the outcome variable
+#' @param vBeta vector, the betas
+#' @param dEps double, the precision epsilon
+#' @param dAlpha double, the alpha parameter
+#' @param dLambda double, the lambda parameter
+ElasticNetMM <- function(mX, vY, vBeta, dEps, dAlpha, dLambda) {
+  # loop objects
+  iP <- ncol(mX)
+  iN <- nrow(mX)
+  ik <- 1
+  dLossChange <- 0
+  vBeta0 <- runif(ncol(mX))
+  dEps <- 10e-6
+  mXtX <- t(mX) %*% mX
+  
+  # Pull out part one of A
+  dA1 <- (1/iN) * mXtX + (dLambda * (1 - dAlpha)) * diag(iP)
+  
+  while ((ik == 1) | (dLossChange > dEps)) {
+    
+    # update counter
+    ik <- ik + 1
+    
+    # perform one update
+    mD <- getD(vBeta0, dEps)
+    mA <- getA(dA1, mD, dAlpha, dLambda)
+    vBeta1 <- updateBeta(mX, vY, mA)
+    
+    # get residuals
+    vResiduals0 <- residuals(vY, mX, vBeta0)
+    vResiduals1 <- residuals(vY, mX, vBeta1)
+    
+    # compute loss change
+    dLossChange <- loss_change(vBeta0, vBeta1, vResiduals0, vResiduals1, dLambda, dAlpha)
+    
+    # output
+    print(paste0("Iteration: ", ik, " \n"))
+    print(paste0("Loss Change: ", dLossChange, " \n"))
+    
+    # update the beta
+    vBeta0 <- vBeta1
+  }
+  
+  print("Beta Estimate")
+  print(vBeta0)
+  return(vBeta0)
+}
+
