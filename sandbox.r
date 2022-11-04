@@ -42,8 +42,8 @@ mX <- supermarket1996 %>% select(-c("STORE","CITY","GROCCOUP_sum","SHPINDX")) %>
 # Model -------------------------------------------------------------------
 
 # hyperparameters
-dLambda <- 0.5
-dAlpha <- 0.5
+dLambda <- 100
+dAlpha <- 1
 
 # loop objects
 iP <- ncol(mX)
