@@ -1,0 +1,133 @@
+---
+title: "Group_assigment"
+author: "Thao Le"
+output:
+  pdf_document:
+    fig_caption: yes
+date: "2022-11-02"
+header-includes:
+  \usepackage{float}
+  \usepackage{booktabs} %to thicken table lines
+---
+
+Using the ElasticnetMM and residuals functions in the toolbox
+```{r setup, include=FALSE}
+if(! require("pacman")) install.packages("pacman")
+pacman::p_load(knitr,
+               ggplot2,
+               png)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+
+```{r read data}
+current_path <- getwd()
+cat("My current working directory is:", current_path)
+setwd("/Users/thaole/Desktop/BDS/Block 2/Supervised ML/week 2")
+load("supermarket1996.Rdata")
+```
+
+Goal: predict grocery_sum through elastic net using the demographic variables as predictors. Omit the variables store, city, ZIP, groccoup_sum and shpindx as predictors
+- Write your own function to determine the hyper-parameter through K-fold cross validation
+
+First, we check K-fold using built-in function
+```{r results="hide"}
+df <- data.frame(supermarket1996)
+sub_df <- subset(df, select=-c(STORE, CITY, ZIP, GROCCOUP_sum, SHPINDX))
+y <- as.vector(sub_df$GROCERY_sum)      # y variable
+X <- as.matrix(sub_df[,-1])
+X <- scale(X) # Make columns z-scores of nonfactors
+
+library(glmnet, quietly = TRUE)
+result.cv <- cv.glmnet(X, y, alpha = 0.5, 
+                lambda = 10^seq(-2, 10, length.out = 50), nfolds = 10)  
+print(result.cv$lambda.min)      # Best cross validated lambda
+print(result.cv$lambda.1se)      # Conservative est. of best lambda (1 stdev)
+
+## To plot Root Mean Squared Error (RMSE) to be on the same scale as y:
+result.cv$cvm  <- result.cv$cvm^0.5
+result.cv$cvup <- result.cv$cvup^0.5
+result.cv$cvlo <- result.cv$cvlo^0.5
+plot(result.cv, ylab = "Root Mean-Squared Error") 
+
+print(result.cv$lambda.min)      # Best cross validated lambda
+# Final run with best cross validated lambda
+result <- glmnet(X, y, alpha = 0.5, lambda = result.cv$lambda.min,
+                 intercept = FALSE)  
+result$beta
+
+
+```
+
+Then, we build out own k-fold manually
+
+Function to find optimal lambda using CV:
+```{r }
+
+k_fold <- function(mX, vy, nfolds, vBeta, dEps, dAlpha,lLambda){
+  #Shuffle the data
+  data <-cbind(vy,mX)
+  data<-data[sample(nrow(data)),]
+
+  #Create n equal folds, since the indexes are discrete, sometimes fold length differs by 1 observation
+  folds <- cut(seq(1,nrow(data)),breaks=nfolds,labels=FALSE)
+
+  #Perform cross validation
+  mRSS= matrix(NA, nrow=50, ncol=nfolds) #Create a matrix, each column is the RSS for each test set of the folds
+  for(i in 1:ncol(mRSS)){
+      #Segment the data by fold 
+      testIndexes <- which(folds==i,arr.ind=TRUE)
+      testSet <- data[testIndexes, ]
+      trainSet <- data[-testIndexes, ]
+      #Use the test and train data partitions on Elastic net model
+      y_train <- trainSet[,1]
+      X_train <- scale(trainSet[,-1])
+      y_test <- testSet[,1]
+      X_test <-scale( testSet[,-1])
+      lRSS = rep(NA, nrow(mRSS))
+      for (j in 1:nrow(mRSS)){
+        #Calculate RSS for each lambda value
+        vBeta_new = ElasticNetMM(X_train, y_train, dEps, dAlpha, lLambda[j]) 
+        lRSS[j] =sum(residuals(y_test, X_test, vBeta_new)^2) # is this fine?
+      }
+      mRSS[,i]=lRSS #Insert RSS values into matrix
+  }
+  return(mRSS)
+}
+```
+
+```{r }
+
+#init
+vy <- as.vector(sub_df$GROCERY_sum)      # y variable
+mX <- as.matrix(sub_df[,-1])
+ # Make columns z-scores of nonfactors
+dEps = 10^(-6)
+vBeta= rep(1, ncol(mX))
+dAlpha = 0.5
+lLambda = 10^seq(-2, 10, length.out = 50)
+
+#Get matrix of RSS over k-fold and 50 lambda
+mRSS= k_fold(mX,vy, 10, vBeta, dEps, dAlpha, lLambda)
+mRSS
+
+root_mean <- function(mRSS){
+  means = sqrt(rowMeans(mRSS))
+  return(means)
+}
+means = root_mean(mRSS)
+
+#Get index of the min lambda
+ind = which.min(means)
+
+lambda_min = lLambda[ind]
+cat("The minimum lambda is: ", lambda_min)
+
+
+plot(means, ylab = "Root Mean-Squared Error")
+```
