@@ -1,6 +1,6 @@
 ---
-title: "Title"
-author: "Ramon Snellen"
+title: "SML: Exercise 2"
+author: "Finn-Ole Honer, Thao Le, Jason Wang, Ramon Snellen"
 format: pdf
 pdf:
   documentclass: article
@@ -9,6 +9,7 @@ editor: visual
 include-in-header:
   text: |
     \addtokomafont{disposition}{\rmfamily}
+    \usepackage{fancyvrb}
 pdf-engine: xelatex
 cap-location: top
 toc: true
@@ -34,3 +35,39 @@ biblio-title: References
 ---
 
 \clearpage
+
+\section{Introduction}
+
+This report aims to find the best set of predictors for past cumulative grocery sales (in dollars) for Dominick's Finer Foods.  
+
+\section{Data}
+
+The data set contains seven years of store-level data collected at Dominick's Finer Foods by the University of Chicago Booth School of Business. The data can be found at \url{https://www.chicagobooth.edu/research/kilts/datasets/dominicks}. The data set contains 50 variables, which stem from:
+\begin{enumerate}
+\item customer count files, which contain information about in-store traffic;
+\item a demographics file, which contains store-specific demographic data;
+\item number identification files, which contain product information.
+\end{enumerate}
+Of the fifty variables, \verb+GROCERY_sum+ is used as dependent variable. Furthermore, four categorical variables are dropped; \verb+STORE+, \verb+CITY+, \verb+ZIP+ and \verb+SPHINDX+. The remaining variables are potential predictor variables.
+
+\section{Method}
+
+To find the optimal set of predictor variables, and there corresponding weights, we use a regression method that penalizes the size of coefficients. The penalty is useful when predictors are collinear, or the number of predictors destabilizes estimation. Let $P(\beta)$ denote a general penalty function. Then, the penalized regression equation becomes
+$$
+L(\beta) = (\mathbf{y}-\mathbf{x}\beta)^{T}(\mathbf{y}-\mathbf{x}\beta) + \lambda P(\beta).
+$$
+It follows that $\lambda$ is the hyperparameter that determines the strength of the penalty. When $P(\beta) = \beta^{2}$, the regression is called 'ridge' regression. Similarly, when $P(\beta) = |\beta|$, the regression is called 'LASSO' regression. Finally, any combination $P(\beta) = \alpha |\beta| + (1-\alpha) \beta^{2}$ of 'ridge' and 'LASSO', where $\alpha$ denotes the weights, is called 'elastic net'.
+
+\section{Results}
+
+\section{Conclusion and Discussion}
+
+\section{Code}
+
+
+[REFERENCES]
+
+
+
+
+
