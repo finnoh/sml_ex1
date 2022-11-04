@@ -85,3 +85,4 @@ while ((ik == 1) | (dLossChange > dEps)) {
 
 print("Beta Estimate")
 print(vBeta0)
+
