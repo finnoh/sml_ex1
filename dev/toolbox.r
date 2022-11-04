@@ -1,5 +1,5 @@
-#' Compute the residuals
-#'
+' Compute the residuals
+ #'
 #' @param vY vector, y the outcome
 #' @param mX matrix, X the predictors
 #' @param vBeta vector, the parameters beta
@@ -139,7 +139,7 @@ itElasticNetMM <- function(mX, vY, vBeta, dEps, dAlpha, dLambda) {
 #' @param dEps double, the precision epsilon
 #' @param dAlpha double, the alpha parameter
 #' @param dLambda double, the lambda parameter
-ElasticNetMM <- function(mX, vY, vBeta, dEps, dAlpha, dLambda) {
+ElasticNetMM <- function(mX, vY, dEps, dAlpha, dLambda) {
   # loop objects
   iP <- ncol(mX)
   iN <- nrow(mX)
@@ -180,5 +180,12 @@ ElasticNetMM <- function(mX, vY, vBeta, dEps, dAlpha, dLambda) {
   print("Beta Estimate")
   print(vBeta0)
   return(vBeta0)
+}
+#' Run the full MM
+#' 
+#' @param vBeta_A vector, estimates of model A
+#' @param vBeta_B vector, estimates of model B
+compareCoef <- function(variables) {
+  
 }
 
