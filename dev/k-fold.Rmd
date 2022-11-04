@@ -70,14 +70,14 @@ Function to find optimal lambda using CV:
 ```{r }
 
 k_fold <- function(mX, vy, nfolds, vBeta, dEps, dAlpha,lLambda){
-  #Randomly shuffle the data
+  #Shuffle the data
   data <-cbind(vy,mX)
   data<-data[sample(nrow(data)),]
 
-  #Create 10 equally size folds
+  #Create n equal folds, since the indexes are discrete, sometimes fold length differs by 1 observation
   folds <- cut(seq(1,nrow(data)),breaks=nfolds,labels=FALSE)
 
-  #Perform 10 fold cross validation
+  #Perform cross validation
   mRSS= matrix(NA, nrow=50, ncol=nfolds) #Create a matrix, each column is the RSS for each test set of the folds
   for(i in 1:ncol(mRSS)){
       #Segment the data by fold 
