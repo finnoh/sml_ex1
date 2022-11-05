@@ -61,7 +61,7 @@ Let $P(\beta)$ denote a general penalty function. Then, the penalized regression
 $$
 L(\beta) = (\mathbf{y}-\mathbf{x}\beta)^{T}(\mathbf{y}-\mathbf{x}\beta) + \lambda P(\beta),
 $$ 
-where $\lambda$ is the hyperparameter that determines the strength of the penalty. When $P(\beta) = \beta^{2}$, the regression is called 'ridge' regression. Similarly, when $P(\beta) = |\beta|$, the regression is called 'LASSO' regression. Finally, any convex combination $P(\beta) = \alpha |\beta| + (1-\alpha) \beta^{2}$ of the 'ridge' and 'LASSO' penalty, where $\alpha$ denotes the weight on the 'LASSO' penalty, is called 'elastic net'.
+where $\lambda$ is the hyperparameter that determines the strength of the penalty. When $P(\beta) = \beta^{2}$, the regression is called 'ridge' regression. Similarly, when $P(\beta) = |\beta|$, the regression is called 'LASSO' regression. Finally, any convex combination $P(\beta) = \alpha |\beta| + (1-\alpha) \beta^{2}$ of the 'ridge' and 'LASSO' penalty, where $\alpha$ denotes the weight on the 'LASSO' penalty, is called 'elastic net' [compare @zou2005].
 
 \section{Results}
 
