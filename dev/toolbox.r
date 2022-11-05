@@ -185,7 +185,8 @@ ElasticNetMM <- function(mX, vY, dEps, dAlpha, dLambda) {
 #' 
 #' @param vBeta_A vector, estimates of model A
 #' @param vBeta_B vector, estimates of model B
-compareCoef <- function(variables) {
-  
+#' @return MAPE, vector - main absolute percentage error
+MAPE <- function(vBeta_A, vBeta_B) {
+  return(abs((vBeta_A - vBeta_B)/vBeta_A) / 100)
 }
 

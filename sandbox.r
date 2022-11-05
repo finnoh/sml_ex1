@@ -12,6 +12,9 @@ source("./dev/toolbox.r")
 # load data
 load("supermarket1996.RData")
 
+# writing format objects
+mytheme <- theme_bw() + theme(legend.position = "bottom", 
+                              axis.text.x = element_text(angle = 45, size = 7, vjust = 0.5))
 
 # Synth.  Data ------------------------------------------------------------
 sim_arguments <- list(
@@ -96,7 +99,30 @@ vBeta_glm <- vBeta_glm[-1, ]
 
 # compare estimates with each other
 dfCompareBeta <- cbind(vBeta_glm, vBeta_MM)
+vNameCoef <- rownames(dfCompareBeta)
 
+dfCompareBetaTable <- dfCompareBeta %>% as_tibble()
+dfCompareBetaTable$Predictor <- vNameCoef
+colnames(dfCompareBetaTable) <- c("GLMNET", "MM", "Predictor")
+
+plot_coef_diff <- dfCompareBetaTable %>% pivot_longer(cols = c("GLMNET", "MM")) %>% 
+  ggplot(aes(x = Predictor, y = value, color = name)) + 
+  geom_point() + 
+  labs(x = "", y = "Difference", color = "") +
+  scale_x_discrete(breaks = vNameCoef) +
+  mytheme
+
+plot_coef_rmse <- dfCompareBetaTable %>% mutate(MAPE = MAPE(GLMNET, MM)) %>% 
+  ggplot(aes(x = Predictor, y = MAPE)) +
+  geom_bar(stat = "identity") +
+  labs(x = "", y = "MAPE") +
+  scale_x_discrete(breaks = vNameCoef, labels = abbreviate) +
+  scale_y_continuous(breaks = seq(0, 1.2, 0.2), labels = scales::percent) +
+  mytheme
+  
+plot_coef_rmse
+  
+  
 # in toy example we get the same results after running 1e-20 = eps, however
 # for more complex data sets we are not able to increase the eps further due to
 # numerical issues. We suspect that the algorithm used in the glmnet package 

@@ -65,6 +65,18 @@ where $\lambda$ is the hyperparameter that determines the strength of the penalt
 
 \section{Results}
 
+In an estimation on simulated data, we get the same results for `glmnet` and our implementation based on the MM algorithm. We suspect that the algorithm used in the glmnet package (generalized linear model via penalized maximum likelihood), converges faster and hence delivers more precise estimates than our implementation of the elastic net with the MM algorithm.
+
+
+```{r}
+dfCompareBetaTable %>% kableExtra::kable(align = "c")
+```
+
+```{r}
+plot_coef_rmse + labs(title = "MAPE Coefficients GLMNET vs. MM")
+```
+
+
 \section{Conclusion and Discussion}
 
 \section{Code}
