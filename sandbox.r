@@ -50,7 +50,7 @@ iN <- nrow(mX)
 ik <- 1
 dLossChange <- 0
 vBeta0 <- runif(ncol(mX))
-dEps <- 10e-20
+dEps <- 10e-10
 mXtX <- t(mX) %*% mX
 
 # Pull out part one of A
@@ -95,7 +95,7 @@ vBeta_glm <- model_glm %>% coef() %>% as.matrix()
 vBeta_glm <- vBeta_glm[-1, ] 
 
 # compare estimates with each other
-cbind(vBeta_glm, vBeta_MM)
+dfCompareBeta <- cbind(vBeta_glm, vBeta_MM)
 
 # in toy example we get the same results after running 1e-20 = eps, however
 # for more complex data sets we are not able to increase the eps further due to

@@ -1,5 +1,7 @@
 # sml_ex1
 
+> Exectute the script `compile.r` to run the analysis script and compile the report.
+
 - report.rmd: The report
 - sandbox.r: script for working out the right code
 - dev/toolbox.r: script where we can store the function we write

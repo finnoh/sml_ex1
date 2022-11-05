@@ -1,18 +1,20 @@
 ---
 title: "SML: Exercise 2"
-author: "Finn-Ole Honer, Thao Le, Jason Wang, Ramon Snellen"
-format: pdf
-pdf:
-  documentclass: article
-  cite-method: biblatex
-editor: visual
-include-in-header:
-  text: |
-    \addtokomafont{disposition}{\rmfamily}
-    \usepackage{fancyvrb}
+author: "Finn-Ole Höner, Thao Le, Jason Wang, Ramon Snellen"
+date: "`r Sys.Date()`"
+output: pdf_document
+ulrcolor: CornflowerBlue
+header-includes:
+  - \usepackage{float}
+  - \usepackage{booktabs}
+  - \usepackage{fancyvrb}
+  - \usepackage{float}
+  - \newcommand{\mat}[1]{\mathbf{#1}}
+  - \newcommand{\vect}[1]{\boldsymbol{#1}}
+bibliography: citations.bib
 pdf-engine: xelatex
 cap-location: top
-toc: true
+toc: false
 toc-title: Contents
 number-sections: true
 mainfont: Helvetica
@@ -33,8 +35,6 @@ df-print: default
 highlight-style: arrow-dark
 biblio-title: References
 ---
-
-\clearpage
 
 \section{Introduction}
 
@@ -61,7 +61,7 @@ Let $P(\beta)$ denote a general penalty function. Then, the penalized regression
 $$
 L(\beta) = (\mathbf{y}-\mathbf{x}\beta)^{T}(\mathbf{y}-\mathbf{x}\beta) + \lambda P(\beta).
 $$
-It follows that $\lambda$ is the hyperparameter that determines the strength of the penalty. When $P(\beta) = \beta^{2}$, the regression is called 'ridge' regression. Similarly, when $P(\beta) = |\beta|$, the regression is called 'LASSO' regression. Finally, any convex combination $P(\beta) = \alpha |\beta| + (1-\alpha) \beta^{2}$ of the 'ridge' and 'LASSO' penalty, where $\alpha$ denotes the weight on the 'LASSO' penalty, is called 'elastic net'.
+It follows that $\lambda$ is the hyperparameter that determines the strength of the penalty. When $P(\beta) = \beta^{2}$, the regression is called 'ridge' regression. Similarly, when $P(\beta) = |\beta|$, the regression is called 'LASSO' regression. Finally, any convex combination $P(\beta) = \alpha |\beta| + (1-\alpha) \beta^{2}$ of the 'ridge' and 'LASSO' penalty, where $\alpha$ denotes the weight on the 'LASSO' penalty, is called 'elastic net' [compare @zou2005].
 
 \section{Results}
 
@@ -69,4 +69,5 @@ It follows that $\lambda$ is the hyperparameter that determines the strength of 
 
 \section{Code}
 
-\[REFERENCES\]
+# References
+
