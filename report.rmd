@@ -57,11 +57,34 @@ Of the fifty variables, \verb+GROCERY_sum+ is used as dependent variable. Furthe
 
 To find the optimal set of predictor variables, and there corresponding weights, we use a regression method that penalizes the size of coefficients. The penalty is useful when predictors are collinear, or the number of predictors destabilizes estimation. This data set only consists of 77 observations for 50 variables, hence the number of predictors would destabilize estimation if not penalized.
 
-Let $P(\beta)$ denote a general penalty function. Then, the penalized regression equation becomes 
-$$
-L(\beta) = (\mathbf{y}-\mathbf{x}\beta)^{T}(\mathbf{y}-\mathbf{x}\beta) + \lambda P(\beta),
-$$ 
-where $\lambda$ is the hyperparameter that determines the strength of the penalty. When $P(\beta) = \beta^{2}$, the regression is called 'ridge' regression. Similarly, when $P(\beta) = |\beta|$, the regression is called 'LASSO' regression. Finally, any convex combination $P(\beta) = \alpha |\beta| + (1-\alpha) \beta^{2}$ of the 'ridge' and 'LASSO' penalty, where $\alpha$ denotes the weight on the 'LASSO' penalty, is called 'elastic net' [compare @zou2005].
+Let $P(\beta)$ denote a general penalty function. Then, the loss function of the regression equation becomes 
+\begin{equation}\label{eq:lossfunction}
+L(\beta) = (\mathbf{y}-\mathbf{x}\beta)^{T}(\mathbf{y}-\mathbf{x}\mathbf{\beta}) + \lambda P(\mathbf{\beta}),
+\end{equation}
+where $\lambda$ is the hyperparameter that determines the strength of the penalty. When $P(\beta) = \beta^{2}$, the regression is called 'ridge' regression. Similarly, when $P(\beta) = |\beta|$, the regression is called 'LASSO' regression. Finally, any convex combination $P(\beta) = \alpha |\beta| + (1-\alpha) \beta^{2}$ of the 'ridge' and 'LASSO' penalty, where $\alpha$ denotes the weight on the 'LASSO' penalty, is called 'elastic net' [compare @zou2005]. We use the elastic net to find the optimal set of predictor variables, since it exploits the LASSO property of variable selection, and the ridge ...
+
+We use an MM-algorithm to estimate the elasting net. The MM-algorithm uses a majorizing function to find the coefficient vector $\mathbf{\beta}$ that minimizes the loss function specified in Equation \ref{eq:lossfunction}. Let $\epsilon$ denote the desired level of precision. The majorizing function is specified as
+\begin{equation*}
+L_{MM}(\mathbf{\beta}) = \frac{1}{2}\mathbf{\beta}^{\text{T}}(\frac{1}{n}\mathbf{X}^{\text{T}}\mathbf{X} + \lambda (1-\alpha)\mathbf{I} + \lambda \alpha \mathbf{D})\mathbf{\beta} - \frac{1}{n}\mathbf{\beta}^{\text{T}}\mathbf{X}^{\text{T}}\mathbf{y} + c,
+\end{equation*} where $\mathbf{D}$ is a $p \times p$ diagonal matrix with elements
+\begin{equation*}
+d_{jj} = 1/\max \left(|\beta_{j}^{0}|,\epsilon \right).
+\end{equation*}
+Furthermore,
+\begin{equation*}
+c = \frac{1}{2n}\mathbf{y}^{\text{T}}\mathbf{y} + \frac{1}{2}\lambda \alpha \sum_{i=1}^{p}|\beta_{j}^{0}|.
+\end{equation*}
+
+To find the optimal penalty strength $\lambda$ and the weight of the elastic net $\alpha$, $K$-fold cross-validation is used. $K$-fold cross-validation starts with splitting the data set into $K$ folds. Subsequently, $K$ iterations are ran as follows: for each iteration $k \in \{1,\ldots,K\}$, fold $k$ is the test set, whereas the remaining $(K-1)$ folds together form the training set. On the training set, the elastic net is estimated for all $\lambda_{i} \in (10^{-6+i})_{i=1}^{10}$. Moreover, for each $\lambda_{i}$, all corresponding $\alpha \in \{0,0.01,\ldots,1\}$ are estimated, such that there are $1000$ combinations of the hyperparameters $\alpha$ and $\lambda$. All estimated elastic nets (i.e., all combinations of the hyperparameters), are used to predict the dependent variable in the $k$th fold. When this procedure has been completed for all $K$ folds, we have obtained fitted values for every observations in the data set, for all elastic nets. Consequently, prediction errors can be computed.
+
+To evaluate which elastic net performs best (that is, the elastic net that maintains the optimal combination of hyperparameters), the Root Mean Square Error (RMSE) is computed for each elastic net; the elastic net that has the lowest RMSE is deemed to be the best model. Let $\mathbf{\hat{y}}_{\text{test}(k)} = \mathbf{X}_{\text{test}(k)}\mathbf{\hat{\beta}}_{\text{train(k)}}$ denote the fitted values, and $n_{k}$ the number of observations in fold $k$. The RMSE is computed as
+\begin{equation*}
+\text{RMSE}=\sqrt{\frac{1}{K}\sum_{k=1}^{K}\text{MSE}_{k}},
+\end{equation*}
+where
+\begin{equation*}
+\text{MSE} = \frac{1}{n_{k}}(\mathbf{y}_{\text{test}(k)} - \mathbf{\hat{y}}_{\text{test}(k)})^{\text{T}}(\mathbf{y}_{\text{test}(k)} - \mathbf{\hat{y}}_{\text{test}(k)}).
+\end{equation*}
 
 \section{Results}
 
