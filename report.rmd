@@ -57,11 +57,17 @@ Of the fifty variables, \verb+GROCERY_sum+ is used as dependent variable. Furthe
 
 To find the optimal set of predictor variables, and there corresponding weights, we use a regression method that penalizes the size of coefficients. The penalty is useful when predictors are collinear, or the number of predictors destabilizes estimation. This data set only consists of 77 observations for 50 variables, hence the number of predictors would destabilize estimation if not penalized.
 
-Let $P(\beta)$ denote a general penalty function. Then, the penalized regression equation becomes
+Let $P(\beta)$ denote a general penalty function. Then, the penalized regression equation becomes 
 $$
+<<<<<<< HEAD
 L(\beta) = (\mathbf{y}-\mathbf{x}\beta)^{T}(\mathbf{y}-\mathbf{x}\beta) + \lambda P(\beta).
 $$
 It follows that $\lambda$ is the hyperparameter that determines the strength of the penalty. When $P(\beta) = \beta^{2}$, the regression is called 'ridge' regression. Similarly, when $P(\beta) = |\beta|$, the regression is called 'LASSO' regression. Finally, any convex combination $P(\beta) = \alpha |\beta| + (1-\alpha) \beta^{2}$ of the 'ridge' and 'LASSO' penalty, where $\alpha$ denotes the weight on the 'LASSO' penalty, is called 'elastic net' [compare @zou2005].
+=======
+L(\beta) = (\mathbf{y}-\mathbf{x}\beta)^{T}(\mathbf{y}-\mathbf{x}\beta) + \lambda P(\beta),
+$$ 
+where $\lambda$ is the hyperparameter that determines the strength of the penalty. When $P(\beta) = \beta^{2}$, the regression is called 'ridge' regression. Similarly, when $P(\beta) = |\beta|$, the regression is called 'LASSO' regression. Finally, any convex combination $P(\beta) = \alpha |\beta| + (1-\alpha) \beta^{2}$ of the 'ridge' and 'LASSO' penalty, where $\alpha$ denotes the weight on the 'LASSO' penalty, is called 'elastic net'.
+>>>>>>> 9fcbafa440f4e9f906dcfd3e4d51918590aba822
 
 \section{Results}
 
