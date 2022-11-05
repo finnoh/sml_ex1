@@ -181,7 +181,7 @@ ElasticNetMM <- function(mX, vY, dEps, dAlpha, dLambda) {
   print(vBeta0)
   return(vBeta0)
 }
-#' Run the full MM
+#' MAPE
 #' 
 #' @param vBeta_A vector, estimates of model A
 #' @param vBeta_B vector, estimates of model B
@@ -189,4 +189,29 @@ ElasticNetMM <- function(mX, vY, dEps, dAlpha, dLambda) {
 MAPE <- function(vBeta_A, vBeta_B) {
   return(abs((vBeta_A - vBeta_B)/vBeta_A) / 100)
 }
-
+#' MAE
+#' 
+#' @param vBeta_A vector, estimates of model A
+#' @param vBeta_B vector, estimates of model B
+#' @return MAE, vector - main absolute percentage error
+MAE <- function(vBeta_A, vBeta_B) {
+  return(abs(vBeta_A - vBeta_B))
+}
+#' Create a dataframe matching up estimates
+#' 
+#' @param vBeta_A vector, estimates of model A
+#' @param vBeta_B vector, estimates of model B
+#' @param vColNames, vector of length 3, col names to use
+#' @return dfCompareBetaTable, df
+CompareEstimates <- function(vBeta_A, vBeta_B, vColNames = c("GLMNET", "MM", "Predictor")) {
+  # compare estimates with each other
+  dfCompareBeta <- cbind(vBeta_A, vBeta_B)
+  vNameCoef <- rownames(dfCompareBeta)
+  
+  dfCompareBetaTable <- dfCompareBeta %>% as_tibble()
+  dfCompareBetaTable$Predictor <- vNameCoef
+  colnames(dfCompareBetaTable) <- vColNames
+  
+  return(dfCompareBetaTable)
+  
+}

@@ -1,7 +1,7 @@
 # Setup -------------------------------------------------------------------
 # load packages
 if(!require(pacman)){install.packages("pacman")}
-p_load(tidyverse, simglm)
+p_load(tidyverse, simglm, rlist, latex2exp)
 
 # set seed
 set.seed(321)
@@ -13,8 +13,7 @@ source("./dev/toolbox.r")
 load("supermarket1996.RData")
 
 # writing format objects
-mytheme <- theme_bw() + theme(legend.position = "bottom", 
-                              axis.text.x = element_text(angle = 45, size = 7, vjust = 0.5))
+mytheme <- theme_bw() + theme(legend.position = "bottom")
 
 # Synth.  Data ------------------------------------------------------------
 sim_arguments <- list(
@@ -43,49 +42,12 @@ mX <- supermarket1996 %>% select(-c("STORE","CITY","GROCCOUP_sum","SHPINDX", "GR
 
 # Model -------------------------------------------------------------------
 
-# hyperparameters
+# parameters
 dLambda <- 10
 dAlpha <- 1
-
-# loop objects
-iP <- ncol(mX)
-iN <- nrow(mX)
-ik <- 1
-dLossChange <- 0
-vBeta0 <- runif(ncol(mX))
 dEps <- 10e-10
-mXtX <- t(mX) %*% mX
 
-# Pull out part one of A
-dA1 <- (1/iN) * mXtX + (dLambda * (1 - dAlpha)) * diag(iP)
-
-while ((ik == 1) | (dLossChange > dEps)) {
-  
-  # update counter
-  ik <- ik + 1
-  
-  # perform one update
-  mD <- getD(vBeta0, dEps)
-  mA <- getA(dA1, mD, dAlpha, dLambda)
-  vBeta1 <- updateBeta(mX, vY, mA)
-  
-  # get residuals
-  vResiduals0 <- residuals(vY, mX, vBeta0)
-  vResiduals1 <- residuals(vY, mX, vBeta1)
-  
-  # compute loss change
-  dLossChange <- loss_change(vBeta0, vBeta1, vResiduals0, vResiduals1, dLambda, dAlpha)
-  
-  # output
-  print(paste0("Iteration: ", ik, " \n"))
-  print(paste0("Loss Change: ", dLossChange, " \n"))
-  
-  # update the beta
-  vBeta0 <- vBeta1
-  
-}
-
-vBeta_MM <- vBeta0
+vBeta_MM <- ElasticNetMM(mX, vY, dEps, dAlpha, dLambda)
 
 print("Beta Estimate")
 print(vBeta_MM)
@@ -97,20 +59,7 @@ model_glm <- glmnet(x = mX, y = vY, alpha = dAlpha, lambda = dLambda,
 vBeta_glm <- model_glm %>% coef() %>% as.matrix()
 vBeta_glm <- vBeta_glm[-1, ] 
 
-# compare estimates with each other
-dfCompareBeta <- cbind(vBeta_glm, vBeta_MM)
-vNameCoef <- rownames(dfCompareBeta)
-
-dfCompareBetaTable <- dfCompareBeta %>% as_tibble()
-dfCompareBetaTable$Predictor <- vNameCoef
-colnames(dfCompareBetaTable) <- c("GLMNET", "MM", "Predictor")
-
-plot_coef_diff <- dfCompareBetaTable %>% pivot_longer(cols = c("GLMNET", "MM")) %>% 
-  ggplot(aes(x = Predictor, y = value, color = name)) + 
-  geom_point() + 
-  labs(x = "", y = "Difference", color = "") +
-  scale_x_discrete(breaks = vNameCoef) +
-  mytheme
+dfCompareBetaTable <- CompareEstimates(vBeta_glm, vBeta_MM)
 
 plot_coef_rmse <- dfCompareBetaTable %>% mutate(MAPE = MAPE(GLMNET, MM)) %>% 
   ggplot(aes(x = Predictor, y = MAPE)) +
@@ -118,10 +67,8 @@ plot_coef_rmse <- dfCompareBetaTable %>% mutate(MAPE = MAPE(GLMNET, MM)) %>%
   labs(x = "", y = "MAPE") +
   scale_x_discrete(breaks = vNameCoef, labels = abbreviate) +
   scale_y_continuous(breaks = seq(0, 1.2, 0.2), labels = scales::percent) +
-  mytheme
-  
-plot_coef_rmse
-  
+  mytheme +
+  theme(axis.text.x = element_text(angle = 45, size = 7, vjust = 0.5))
   
 # in toy example we get the same results after running 1e-20 = eps, however
 # for more complex data sets we are not able to increase the eps further due to
@@ -129,3 +76,49 @@ plot_coef_rmse
 # (generalized linear model via penalized maximum likelihood), converges faster and
 # hence delivers more precise estimates than our implementation of the elastic net
 # with the MM algorithm.
+
+
+# Development for Epsilon -------------------------------------------------
+iEpsStart <- 20
+iEpsEnd <- -50
+iEpsStep <- -10
+
+# epsilon steps
+vEps <- 10^seq(iEpsStart, iEpsEnd)
+lBeta_MM <- list()
+lCompare <- list()
+
+# estiamte model for each epsilon and compare to glmnet
+for (i in seq_along(vEps)) {
+  vBeta_MM <- ElasticNetMM(mX, vY, vEps[i], dAlpha, dLambda)
+  lCompare[[i]] <- CompareEstimates(vBeta_glm, vBeta_MM)
+  lCompare[[i]]$Epsilon <- vEps[i]
+}
+
+# transform to dataframe
+dfBetaCompareEps <- list.stack(lCompare)
+dfBetaCompareEps <- dfBetaCompareEps %>% 
+  mutate(MAPE = MAPE(GLMNET, MM),
+         MAE = MAE(GLMNET, MM)) %>% 
+  as_tibble()
+
+plot_MAPE_eps <- dfBetaCompareEps %>% 
+  group_by(Epsilon) %>%
+  summarise(MAPE = median(MAPE),
+            MAE = median(MAE)) %>%
+  ggplot(aes(x = log10(Epsilon), y = MAPE)) +
+  geom_line() +
+  scale_x_continuous(trans = "reverse", breaks = seq(iEpsStart, iEpsEnd, iEpsStep)) +
+  labs(x = TeX("$log_{10} (\\epsilon)$")) +
+  mytheme
+plot_MAPE_eps
+
+plot_MAPE_eps_pred <- dfBetaCompareEps %>% 
+  ggplot(aes(x = log10(Epsilon), y = MAPE, group = Predictor)) +
+  facet_wrap(~Predictor, scales = "free_y", ncol = 9) +
+  geom_smooth() +
+  scale_x_continuous(trans = "reverse", breaks = seq(iEpsStart, iEpsEnd, iEpsStep)) +
+  labs(x = TeX("$log_{10} (\\epsilon)$")) +
+  theme(axis.text.y = element_blank()) +
+  mytheme
+plot_MAPE_eps_pred
