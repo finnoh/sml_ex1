@@ -134,8 +134,15 @@ dEps = 10^(-10)
 vBeta= rep(1, ncol(mX))
 lAlpha = seq(0, 1, length.out = 50)
 lLambda = 10^seq(-2, 10, length.out = 50)
+nfolds = 10
 
-lRMSE_min = k_fold_plots(mX,vy,nfolds = 10,vBeta,dEps, lAlpha,lLambda)
+dAlpha = k_fold_plots(mX,vy,nfolds,vBeta,dEps, lAlpha,lLambda)
+
+# Plot lambda behaviour with teh optimal alpha value
+plot_optimal_alpha = k_fold_alpha_plots(mX,vy,nfolds,vBeta,dEps,dAlpha,lLambda)
+
+#plot optimal lambda, alpha using the package
+plot_cv_package = plot_cv_GLMET(mX,vy,alpha=dAlpha)
 
 
 

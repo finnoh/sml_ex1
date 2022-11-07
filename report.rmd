@@ -82,7 +82,7 @@ Furthermore,
 c = \frac{1}{2n}\mathbf{y}^{\text{T}}\mathbf{y} + \frac{1}{2}\lambda \alpha \sum_{i=1}^{p}|\beta_{j}^{0}|.
 \end{equation*}
 
-To find the optimal penalty strength $\lambda$ and the weight of the elastic net $\alpha$, $K$-fold cross-validation is used. $K$-fold cross-validation starts with splitting the data set into $K$ folds. Subsequently, $K$ iterations are ran as follows: for each iteration $k \in \{1,\ldots,K\}$, fold $k$ is the test set, whereas the remaining $(K-1)$ folds together form the training set. On the training set, the elastic net is estimated for all $\lambda_{i} \in (10^{-6+i})_{i=1}^{10}$. Moreover, for each $\lambda_{i}$, all corresponding $\alpha \in \{0,0.01,\ldots,1\}$ are estimated, such that there are $1000$ combinations of the hyperparameters $\alpha$ and $\lambda$. All estimated elastic nets (i.e., all combinations of the hyperparameters), are used to predict the dependent variable in the $k$th fold. When this procedure has been completed for all $K$ folds, we have obtained fitted values for every observations in the data set, for all elastic nets. Consequently, prediction errors can be computed.
+To find the optimal penalty strength $\lambda$ and the weight of the elastic net $\alpha$, $K$-fold cross-validation is used. $K$-fold cross-validation starts with splitting the data set into $K$ folds. Subsequently, $K$ iterations are ran as follows: for each iteration $k \in \{1,\ldots,K\}$, fold $k$ is the test set, whereas the remaining $(K-1)$ folds together form the training set. On the training set, the elastic net is estimated for all $\lambda_{i} \in (10^{-2+i})_{i=0}^{12}$. Moreover, for each $\lambda_{i}$, all corresponding $\alpha \in \{0,0.01,\ldots,1\}$ are estimated, such that there are $2500$ combinations of the hyperparameters $\alpha$ and $\lambda$. All estimated elastic nets (i.e., all combinations of the hyperparameters), are used to predict the dependent variable in the $k$th fold. When this procedure has been completed for all $K$ folds, we have obtained fitted values for every observations in the data set, for all elastic nets. Consequently, prediction errors can be computed.
 
 To evaluate which elastic net performs best (that is, the elastic net that maintains the optimal combination of hyperparameters), the Root Mean Square Error (RMSE) is computed for each elastic net; the elastic net that has the lowest RMSE is deemed to be the best model. Let $\mathbf{\hat{y}}_{\text{test}(k)} = \mathbf{X}_{\text{test}(k)}\mathbf{\hat{\beta}}_{\text{train(k)}}$ denote the fitted values, and $n_{k}$ the number of observations in fold $k$. The RMSE is computed as
 \begin{equation*}
@@ -95,6 +95,7 @@ where
 
 \section{Results}
 
+\subsection{Test on simulated data}
 In an estimation on simulated data, we get the same results for `glmnet` and our implementation based on the MM algorithm. We suspect that the algorithm used in the glmnet package (generalized linear model via penalized maximum likelihood), converges faster and hence delivers more precise estimates than our implementation of the elastic net with the MM algorithm.
 
 ```{r}
@@ -105,7 +106,17 @@ plot_coef_rmse + labs(title = "MAPE Coefficients GLMNET vs. MM")
 plot_MAPE_eps + labs(title = TeX("Median MAPE for decreasing $ \\epsilon$"))
 ```
 
+\subsection{Test on real data using k-fold}
+\subsubsection{Using MM-algorithm}
+First we find the optimal Lambda and Alpha value for our MM-algorithm
+```{r }
+plot_optimal_alpha = k_fold_alpha_plots(mX,vy,nfolds,vBeta,dEps,dAlpha,lLambda)
+```
+Then we compare to the optimal lambda and alpha value using the GLMNET package. 
 
+```{r}
+plot_cv_GLMET(mX,vy,alpha=dAlpha)
+```
 \section{Conclusion and Discussion}
 
 # References
