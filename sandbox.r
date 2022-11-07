@@ -1,7 +1,7 @@
 # Setup -------------------------------------------------------------------
 # load packages
 if(!require(pacman)){install.packages("pacman")}
-p_load(tidyverse, simglm, rlist, latex2exp)
+p_load(tidyverse, simglm, rlist, latex2exp, glmnet)
 
 # set seed
 set.seed(321)
@@ -44,7 +44,7 @@ mX <- supermarket1996 %>% select(-c("STORE","CITY","GROCCOUP_sum","SHPINDX", "GR
 
 # parameters
 dLambda <- 10
-dAlpha <- 1
+dAlpha <- 0.5
 dEps <- 10e-10
 
 vBeta_MM <- ElasticNetMM(mX, vY, dEps, dAlpha, dLambda)
@@ -67,7 +67,7 @@ plot_coef_rmse <- dfCompareBetaTable %>% mutate(MAPE = MAPE(GLMNET, MM)) %>%
   geom_bar(stat = "identity") +
   labs(x = "", y = "MAPE") +
   scale_x_discrete(breaks = vNameCoef, labels = abbreviate) +
-  scale_y_continuous(breaks = seq(0, 1.2, 0.2), labels = scales::percent) +
+  scale_y_continuous(labels = scales::percent) +
   mytheme +
   theme(axis.text.x = element_text(angle = 45, size = 7, vjust = 0.5))
   
@@ -80,12 +80,12 @@ plot_coef_rmse <- dfCompareBetaTable %>% mutate(MAPE = MAPE(GLMNET, MM)) %>%
 
 
 # Development for Epsilon -------------------------------------------------
-iEpsStart <- 20
-iEpsEnd <- -50
-iEpsStep <- -10
+iEpsStart <- 1
+iEpsEnd <- -100
+iEpsStep <- -1
 
 # epsilon steps
-vEps <- 10^seq(iEpsStart, iEpsEnd)
+vEps <- 10^seq(iEpsStart, iEpsEnd, iEpsStep)
 lBeta_MM <- list()
 lCompare <- list()
 
@@ -96,6 +96,12 @@ for (i in seq_along(vEps)) {
   lCompare[[i]]$Epsilon <- vEps[i]
 }
 
+model_glm <- glmnet(x = mX, y = vY, alpha = dAlpha, lambda = dLambda, 
+                    intercept = FALSE, standardize = FALSE)
+vBeta_glm <- model_glm %>% coef() %>% as.matrix()
+vBeta_glm <- vBeta_glm[-1, ] 
+vNameCoef <- names(vBeta_glm)
+
 # transform to dataframe
 dfBetaCompareEps <- list.stack(lCompare)
 dfBetaCompareEps <- dfBetaCompareEps %>% 
@@ -105,11 +111,12 @@ dfBetaCompareEps <- dfBetaCompareEps %>%
 
 plot_MAPE_eps <- dfBetaCompareEps %>% 
   group_by(Epsilon) %>%
-  summarise(MAPE = median(MAPE),
+  summarise(MAPE = mean(MAPE),
             MAE = median(MAE)) %>%
-  ggplot(aes(x = log10(Epsilon), y = MAPE)) +
-  geom_line() +
-  scale_x_continuous(trans = "reverse", breaks = seq(iEpsStart, iEpsEnd, iEpsStep)) +
+  ggplot(aes(x = log10(Epsilon), y = MAE)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  scale_x_continuous(trans = "reverse", breaks = seq(iEpsStart - 1, iEpsEnd, -10)) +
   labs(x = TeX("$log_{10} (\\epsilon)$")) +
   mytheme
 plot_MAPE_eps

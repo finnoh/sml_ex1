@@ -1,6 +1,6 @@
 # load packages for this script
 if(!require(pacman)){install.packages("pacman")}
-p_load(rmarkdown)
+p_load(rmarkdown, bookdown)
 
 # execute the analysis
 source("sandbox.r")
