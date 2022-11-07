@@ -110,7 +110,7 @@ plot_MAPE_eps <- dfBetaCompareEps %>%
   geom_point() +
   geom_smooth(method = "lm") +
   scale_x_continuous(trans = "reverse", breaks = seq(iEpsStart - 1, iEpsEnd, -10)) +
-  labs(x = TeX("$log_{10} (\\epsilon)$")) +
+  labs(x = TeX("$log_{10} (\\epsilon)$"), y = "AE") +
   mytheme
 plot_MAPE_eps
 
