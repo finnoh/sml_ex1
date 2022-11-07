@@ -126,11 +126,7 @@ plot_coef_rmse + labs(title = "APE Coefficients GLMNET vs. MM")
 
 One explanation for this difference could lie in the algorithms' speed of convergence. For a given data set the MM algorithm might not converge fast enough to provide the same estimates as the `glmnet` implementation. In fact, the cyclical coordinate decent used in `glmnet` is a very efficient algorithm according to @friedman2010.
 
-We investigate this hypothesis by looking at the estimates' differences for lower convergence thresholds $\epsilon$ of the MM algorithm. Figure 2 shows the zero correlation between the Mean Absolute Error and the parameter $\epsilon$: This precision parameter appears to play no role in the discrepancy between the coefficients of `glmnet` and the MM algorithm.
-
-```{r mae, fig.cap="Development of AE fo decreasing precision threshold $\\epsilon$."}
-plot_MAPE_eps + labs(title = TeX("Median AE for decreasing $ \\epsilon$"))
-```
+We investigate this hypothesis by looking at the estimates' differences for lower convergence thresholds $\epsilon$ of the MM algorithm. There is a zero correlation between the AE and $\epsilon$: This precision parameter appears to play no role in the discrepancy between the coefficients of `glmnet` and the MM algorithm.
 
 The uniform difference between the coefficients, and the result that this difference does not depend on the precision parameter $\epsilon$. This leads us to believe that there are some structural differences between the `glmnet` and MM algorithm. However, as these discrepancies are low and similar across predictors, both algorithms seem to implement the same model.
 
