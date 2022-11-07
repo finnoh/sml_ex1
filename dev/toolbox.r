@@ -332,7 +332,9 @@ k_fold_alpha_plots <- function(mX, vy, nfolds, vBeta, dEps, dAlpha,lLambda){
     
   #Plot
   df <- data.frame('RMSE'=means,'Log(Lambda)'=log(lLambda))
-  plot(df$Log.Lambda., df$RMSE, pch=10, main= paste(dAlpha) ,ylab = "Root Mean-Squared Error", xlab= "Log Lambda",col="red") +abline(v=log(lambda_min), col="blue")
+  plot(df$Log.Lambda., df$RMSE, pch=10, main= paste(dAlpha) ,ylab = "Root Mean-Squared Error", 
+       xlab= "Log Lambda",col="red", sub= TeX("Figure 3: Changes in RMSE for each $ \\lambda$ using the best cross validated $ \\alpha$ MM"),
+       font.sub=4)+abline(v=log(lambda_min), col="blue")
   }
 
 
@@ -353,6 +355,7 @@ plot_cv_GLMET <- function(X, y, alpha){
   result.cv$cvm  <- result.cv$cvm^0.5
   result.cv$cvup <- result.cv$cvup^0.5
   result.cv$cvlo <- result.cv$cvlo^0.5
-  p.plot =plot(result.cv, ylab = "Root Mean-Squared Error") 
-  return(p.plot)
+  p.plot =plot(result.cv, ylab = "Root Mean-Squared Error",
+               sub= TeX("Figure 4: Changes in RMSE for each $ \\lambda$ using the best cross validated $ \\alpha$ GLMET"),
+               font.sub=4)  
 }
