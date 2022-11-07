@@ -277,7 +277,7 @@ root_mean <- function(mRSS){
 #' @param dEps double, the precision epsilon
 #' @param lAlpha list, the alpha parameter
 #' @param lLambda list, the lambda parameter
-#' @return lRMSE_min, list of minimum root mean square error for each alpha
+#' @return Alpha_min, alpha that returns the lowest RMSE for all lambda-alpha combinations
 k_fold_plots <- function(mX, vy, nfolds, vBeta, dEps, lAlpha,lLambda){
   lRMSE_min=list()
   for (a in 1:length(lAlpha)){
@@ -299,11 +299,21 @@ k_fold_plots <- function(mX, vy, nfolds, vBeta, dEps, lAlpha,lLambda){
   }
   ind = which.min(lRMSE_min)
   Alpha_min = lAlpha[ind]
-  cat("The alpha with minimum RMSE is: Alpha = ",Alpha_min)
+  # cat("The alpha with minimum RMSE is: Alpha = ",Alpha_min)
   return(Alpha_min)
 }
 
-
+#' Function to plot the alpha with lowest RMSE
+#' 
+#' @param mX matrix, the predictor's data
+#' @param vY vector, the vector of the outcome variable
+#' @param nfolds integer, number of folds
+#' @param vBeta vector, the betas
+#' @param dEps double, the precision epsilon
+#' @param dAlpha double, alpha that returns the lowest RMSE, the output of k_fold_plots function
+#' @param lLambda list, the lambda parameter
+#' @return None
+#' 
 k_fold_alpha_plots <- function(mX, vy, nfolds, vBeta, dEps, dAlpha,lLambda){
   lRMSE_min=list()
     
@@ -333,14 +343,11 @@ k_fold_alpha_plots <- function(mX, vy, nfolds, vBeta, dEps, dAlpha,lLambda){
 #' @param dAlpha double, the alpha parameter
 #' @param lLambda list, the lambda parameter
 #' @return lRMSE_min, list of minimum root mean square error for each alpha
-
 plot_cv_GLMET <- function(X, y, alpha){
   set.seed(321)
   library(glmnet, quietly = TRUE)
   result.cv <- cv.glmnet(X, y, alpha = alpha, 
                          lambda = 10^seq(-2, 10, length.out = 50), nfolds = 10, standardize = TRUE)  
-  print(result.cv$lambda.min)      # Best cross validated lambda
-  print(result.cv$lambda.1se)      # Conservative est. of best lambda (1 stdev)
   
   ## To plot Root Mean Squared Error (RMSE) to be on the same scale as y:
   result.cv$cvm  <- result.cv$cvm^0.5
