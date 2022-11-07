@@ -43,9 +43,10 @@ y <- as.vector(sub_df$GROCERY_sum)      # y variable
 X <- as.matrix(sub_df[,-1])
 X <- scale(X) # Make columns z-scores of nonfactors
 
+set.seed(321)
 library(glmnet, quietly = TRUE)
 result.cv <- cv.glmnet(X, y, alpha = 0.5, 
-                lambda = 10^seq(-2, 10, length.out = 50), nfolds = 10)  
+                lambda = 10^seq(-2, 10, length.out = 50), nfolds = 10, standardize = TRUE)  
 print(result.cv$lambda.min)      # Best cross validated lambda
 print(result.cv$lambda.1se)      # Conservative est. of best lambda (1 stdev)
 
@@ -60,8 +61,6 @@ print(result.cv$lambda.min)      # Best cross validated lambda
 result <- glmnet(X, y, alpha = 0.5, lambda = result.cv$lambda.min,
                  intercept = FALSE)  
 result$beta
-
-
 ```
 
 Then, we build out own k-fold manually
@@ -128,7 +127,6 @@ ind = which.min(means)
 
 lambda_min = lLambda[ind]
 cat("The minimum lambda is: ", lambda_min)
-
 
 plot(means, ylab = "Root Mean-Squared Error")
 ```

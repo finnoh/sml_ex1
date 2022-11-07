@@ -238,10 +238,11 @@ k_fold_lambda <- function(mX, vy, nfolds, vBeta, dEps, dAlpha,lLambda){
   #Perform cross validation
   mRSS= matrix(NA, nrow=50, ncol=nfolds) #Create a matrix, each column is the RSS for each test set of the folds
   for(i in 1:ncol(mRSS)){
-    #Segment the data by fold 
+    #Segment the data by the number of folds
     testIndexes <- which(folds==i,arr.ind=TRUE)
     testSet <- data[testIndexes, ]
     trainSet <- data[-testIndexes, ]
+    
     #Use the test and train data partitions on Elastic net model
     y_train <- trainSet[,1]
     y_test <- testSet[,1]
@@ -258,8 +259,8 @@ k_fold_lambda <- function(mX, vy, nfolds, vBeta, dEps, dAlpha,lLambda){
   }
   return(mRSS)
 }
+
 #' Function to get the root mean square errors for each lambda value
-#' 
 #' @param mRSS matrix, residual sum of squares over k-folds for each lambda value
 #' @return means list, root mean squared errors of each lambda
 root_mean <- function(mRSS){
@@ -274,10 +275,9 @@ root_mean <- function(mRSS){
 #' @param nfolds integer, number of folds
 #' @param vBeta vector, the betas
 #' @param dEps double, the precision epsilon
-#' @param lAlpha double, the alpha parameter
-#' @param lLambda double, the lambda parameter
-#' @return lRMSE_min, list of minimum root mean square error for each alpha
-
+#' @param lAlpha list, the alpha parameter
+#' @param lLambda list, the lambda parameter
+#' @return Alpha_min, alpha that returns the lowest RMSE for all lambda-alpha combinations
 k_fold_plots <- function(mX, vy, nfolds, vBeta, dEps, lAlpha,lLambda){
   lRMSE_min=list()
   for (a in 1:length(lAlpha)){
@@ -299,7 +299,63 @@ k_fold_plots <- function(mX, vy, nfolds, vBeta, dEps, lAlpha,lLambda){
   }
   ind = which.min(lRMSE_min)
   Alpha_min = lAlpha[ind]
-  cat("The alpha with minimum RMSE is: Alpha = ",Alpha_min)
-  return(lRMSE_min)
+  # cat("The alpha with minimum RMSE is: Alpha = ",Alpha_min)
+  return(Alpha_min)
 }
 
+#' Function to plot the alpha with lowest RMSE
+#' 
+#' @param mX matrix, the predictor's data
+#' @param vY vector, the vector of the outcome variable
+#' @param nfolds integer, number of folds
+#' @param vBeta vector, the betas
+#' @param dEps double, the precision epsilon
+#' @param dAlpha double, alpha that returns the lowest RMSE, the output of k_fold_plots function
+#' @param lLambda list, the lambda parameter
+#' @return None
+#' 
+k_fold_alpha_plots <- function(mX, vy, nfolds, vBeta, dEps, dAlpha,lLambda){
+  lRMSE_min=list()
+    
+  mRSS = k_fold_lambda(mX, vy, nfolds, vBeta, dEps, dAlpha,lLambda)
+    
+  #get root mean square errors for each lambda value
+  means = root_mean(mRSS)
+    
+  #Get index of the min lambda
+  ind = which.min(means)
+    
+  lambda_min = lLambda[ind]
+  cat("Alpha is: ", dAlpha,". The minimum lambda is: ", lambda_min, "\n", "The minimum RMSE is: ",  min(means),"\n")
+
+  lRMSE_min=min(means)
+    
+  #Plot
+  df <- data.frame('RMSE'=means,'Log(Lambda)'=log(lLambda))
+  plot(df$Log.Lambda., df$RMSE, pch=10, main= paste(dAlpha) ,ylab = "Root Mean-Squared Error", 
+       xlab= "Log Lambda",col="red", sub= TeX("Figure 3: Changes in RMSE for each $ \\lambda$ using the best cross validated $ \\alpha$ MM"),
+       font.sub=4)+abline(v=log(lambda_min), col="blue")
+  }
+
+
+#' Function to test and plot CV results using package GLMNET
+#' @param mX matrix, the predictor's data
+#' @param vY vector, the vector of the outcome variable
+#' @param nfolds integer, number of folds
+#' @param dAlpha double, the alpha parameter
+#' @param lLambda list, the lambda parameter
+#' @return lRMSE_min, list of minimum root mean square error for each alpha
+plot_cv_GLMET <- function(X, y, alpha){
+  set.seed(321)
+  library(glmnet, quietly = TRUE)
+  result.cv <- cv.glmnet(X, y, alpha = alpha, 
+                         lambda = 10^seq(-2, 10, length.out = 50), nfolds = 10, standardize = TRUE)  
+  
+  ## To plot Root Mean Squared Error (RMSE) to be on the same scale as y:
+  result.cv$cvm  <- result.cv$cvm^0.5
+  result.cv$cvup <- result.cv$cvup^0.5
+  result.cv$cvlo <- result.cv$cvlo^0.5
+  p.plot =plot(result.cv, ylab = "Root Mean-Squared Error",
+               sub= TeX("Figure 4: Changes in RMSE for each $ \\lambda$ using the best cross validated $ \\alpha$ GLMET"),
+               font.sub=4)  
+}
