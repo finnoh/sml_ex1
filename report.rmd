@@ -52,7 +52,7 @@ knitr::opts_chunk$set(echo = FALSE,
 
 \section{Introduction}
 
-This report aims to find the best prediction for past cumulative grocery sales (in dollars) for Dominick's Finer Foods based on an Elastic Net model by @zou2005.
+There are many procedures for finding a best set of predictor variables and their corresponding coefficients. Of these procedures, some require numerical optimization. The elastic net is such a procedure. To numerically optimize elastic net estimation, different algorithms can be used. This report aims to answer the research question: how does the elastic net estimation of the 'cyclical coordinate descent' algorithm and 'MM' algorithm differ? A cyclical coordinate descent algorithm for the elastic net has already been developed in the \verb+glmnet+ package in \verb+R+ [@glmnet]. Therefore, we code the elastic net estimation using an MM algorithm, and compare the estimation output to that of the \verb+glmnet+ package.
 
 \section{Data}
 
@@ -69,7 +69,7 @@ Of the fifty variables, \verb+GROCERY_sum+ is used as dependent variable. Furthe
 
 \section{Method}
 
-To find the optimal set of predictor variables, and there corresponding weights, we use a regression method that penalizes the size of coefficients. The penalty is useful when predictors are collinear, or the number of predictors destabilizes estimation. This data set only consists of 77 observations for 50 variables, hence the number of predictors would destabilize estimation if not penalized.
+The elastic net is a form of penalized regression. In this section, we discuss the elastic net and how we use an MM algorithm to estimate it. In addition, we introduce diagnostics to (1) determine the optimal set of hyperparameters for the elastic net; and (2) compare the performance of the elastic net estimated through an MM algorithm to that of the \verb+glmnet+ package.
 
 Let $P(\beta)$ denote a general penalty function. Then, the loss function of the regression equation becomes 
 \begin{equation}\label{eq:lossfunction}
