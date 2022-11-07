@@ -228,6 +228,7 @@ CompareEstimates <- function(vBeta_A, vBeta_B, vColNames = c("GLMNET", "MM", "Pr
 #' @return mRSS, matrix of Residual sum of squares, each column is for folds, each row is for each lambda value
 k_fold_lambda <- function(mX, vy, nfolds, vBeta, dEps, dAlpha,lLambda){
   #Shuffle the data
+  set.seed(321)
   data <-cbind(vy,mX)
   data<-data[sample(nrow(data)),]
   
