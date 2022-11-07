@@ -71,6 +71,7 @@ Function to find optimal lambda using CV:
 
 k_fold <- function(mX, vy, nfolds, vBeta, dEps, dAlpha,lLambda){
   #Shuffle the data
+  set.seed(321)
   data <-cbind(vy,mX)
   data<-data[sample(nrow(data)),]
 
@@ -107,7 +108,7 @@ k_fold <- function(mX, vy, nfolds, vBeta, dEps, dAlpha,lLambda){
 vy <- as.vector(sub_df$GROCERY_sum)      # y variable
 mX <- as.matrix(sub_df[,-1])
  # Make columns z-scores of nonfactors
-dEps = 10^(-6)
+dEps = 10^(-10)
 vBeta= rep(1, ncol(mX))
 dAlpha = 0.5
 lLambda = 10^seq(-2, 10, length.out = 50)

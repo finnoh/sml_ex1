@@ -123,3 +123,19 @@ plot_MAPE_eps_pred <- dfBetaCompareEps %>%
   theme(axis.text.y = element_blank()) +
   mytheme
 plot_MAPE_eps_pred
+
+#------------------------------------------
+load("supermarket1996.Rdata")
+df <- data.frame(supermarket1996)
+sub_df <- subset(df, select=-c(STORE, CITY, ZIP, GROCCOUP_sum, SHPINDX))
+vy <- as.vector(sub_df$GROCERY_sum)      # y variable
+mX <- as.matrix(sub_df[,-1])
+dEps = 10^(-10)
+vBeta= rep(1, ncol(mX))
+lAlpha = seq(0, 1, length.out = 50)
+lLambda = 10^seq(-2, 10, length.out = 50)
+
+lRMSE_min = k_fold_plots(mX,vy,nfolds = 10,vBeta,dEps, lAlpha,lLambda)
+
+
+
