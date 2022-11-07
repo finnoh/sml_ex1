@@ -11,7 +11,6 @@ residuals <- function(vY, mX, vBeta) {
   return(vResiduals)
 }
 #' Loss function
-#'
 #' @param vResiduals vector, the residuals
 #' @param vBeta vector, the parameters beta
 #' @param dLambda double, the lambda parameter
