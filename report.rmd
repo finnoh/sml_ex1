@@ -39,7 +39,14 @@ highlight-style: arrow-dark
 biblio-title: References
 ---
 ```{r, echo=FALSE}
-knitr::opts_chunk$set(echo = FALSE, message = FALSE, error = FALSE, warning = FALSE)
+knitr::opts_chunk$set(echo = FALSE, 
+                      message = FALSE, 
+                      error = FALSE, 
+                      warning = FALSE, 
+                      cache = TRUE,
+                      fig.width = 4.5,
+                      fig.height = 3,
+                      fig.align = "center")
 ```
 
 
@@ -93,40 +100,49 @@ where
 \text{MSE} = \frac{1}{n_{k}}(\mathbf{y}_{\text{test}(k)} - \mathbf{\hat{y}}_{\text{test}(k)})^{\text{T}}(\mathbf{y}_{\text{test}(k)} - \mathbf{\hat{y}}_{\text{test}(k)}).
 \end{equation*}
 
+To validate the results of our MM model, we compare our coefficient estimates with the ones of the established `glmnet` algorithm. We do not expect the coefficients to match exactly, e.g. due to different optimization algorithms. Hence, we need to measure their differences. We do so with the Absolute Error (AE) 
+
+\begin{equation*}
+\text{AE}_i = \left |\hat{\beta}^{GLM}_i - \hat{\beta}^{MM}_i \right |,
+\end{equation*}
+and the Absolute Percentage Error (APE)
+\begin{equation*}
+\text{APE}_i = \left |\frac{\hat{\beta}^{GLM}_i - \hat{\beta}^{MM}_i}{\hat{\beta}^{GLM}_i} \right | .
+\end{equation*}
+
+where $\hat{\beta}^{GLM}_i$ and $\hat{\beta}^{MM}_i$ are the i-th coefficients of the `glmnet` and MM model, respectively.
+
+Indeed, when applying the `glmnet` and MM implementations to the Dominick's Finer Food data set, we get different coeffciients. Figure 1 shows the mean-absolute-percentage differences (MAPE) of these two implementations for the different predictors. For most predictors, the $APE$ is around to $1 \%$.
+
+```{r mape, fig.cap="Absolute percentage difference between glmnet and MM coefficients."}
+plot_coef_rmse + labs(title = "APE Coefficients GLMNET vs. MM")
+```
+
 \section{Results}
-
-
-In an estimation on simulated data, we get the same results for `glmnet` and our implementation based on the MM algorithm. However, for our estimation on the Dominick's Finer Food data, we get different estimates between these two implementations. Figure 1 shows the mean-absolute-percentage differences (MAPE) of the two implementations for the different predictors. For most predictors, the $MAPE$ is around to $1 \%$.
-
 
 One explanation for this difference could lie in the algorithms' speed of convergence. For a given data set the MM algorithm might not converge fast enough to provide the same estimates as the `glmnet` implementation. In fact, the cyclical coordinate decent used in `glmnet` is a very efficient algorithm according to @friedman2010.
 
-```{r mape, fig.cap="Mean absolute percentage difference between glmnet and MM coefficients."}
-plot_coef_rmse + labs(title = "MAPE Coefficients GLMNET vs. MM")
-```
-
 We investigate this hypothesis by looking at the estimates' differences for lower convergence thresholds $\epsilon$ of the MM algorithm. Figure 2 shows the zero correlation between the Mean Absolute Error and the parameter $\epsilon$: This precision parameter appears to play no role in the discrepancy between the coefficients of `glmnet` and the MM algorithm.
 
-```{r mae, fig.cap="Development of MAE fo decreasing precision threshold $\\epsilon$."}
-plot_MAPE_eps + labs(title = TeX("Median MAE for decreasing $ \\epsilon$"))
+```{r mae, fig.cap="Development of AE fo decreasing precision threshold $\\epsilon$."}
+plot_MAPE_eps + labs(title = TeX("Median AE for decreasing $ \\epsilon$"))
 ```
 
 The uniform difference between the coefficients, and the result that this difference does not depend on the precision parameter $\epsilon$ leads us to believe that there are some structural differences between the `glmnet` and MM algorithm. However, as these discrepancies are low and similar across predictors, both algorithms seem to implement the same model.
 
-
 \subsection{Test on real data using k-fold}
 
 First we find the optimal Lambda and Alpha value for our MM-algorithm
-```{r message = FALSE}
+```{r message = FALSE, fig.cap="Changes in RMSE for each $ \\lambda$ using the best cross validated $ \\alpha$ MM"}
 k_fold_alpha_plots(mX,vy,nfolds,vBeta,dEps,dAlpha,lLambda)
 ```
 Then we compare to the optimal lambda and alpha value using the GLMNET package. 
 
 
-```{r message = FALSE}
+```{r message = FALSE, fig.cap="Changes in RMSE for each $ \\lambda$ using the best cross validated $ \\alpha$ GLMET"}
 plot_cv_GLMET(mX,vy,alpha=dAlpha)
-
 ```
+
 \section{Conclusion and Discussion}
 
 # References

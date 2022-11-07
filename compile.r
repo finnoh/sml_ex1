@@ -10,5 +10,3 @@ render(input = "report.rmd", output_format = "pdf_document")
 
 # open the report
 system('open "report.pdf"')
-
-

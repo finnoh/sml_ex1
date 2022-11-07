@@ -65,18 +65,11 @@ dfCompareBetaTable <- CompareEstimates(vBeta_glm, vBeta_MM)
 plot_coef_rmse <- dfCompareBetaTable %>% mutate(MAPE = MAPE(GLMNET, MM)) %>% 
   ggplot(aes(x = Predictor, y = MAPE)) +
   geom_bar(stat = "identity") +
-  labs(x = "", y = "MAPE") +
+  labs(x = "", y = "APE") +
   scale_x_discrete(breaks = vNameCoef, labels = abbreviate) +
   scale_y_continuous(labels = scales::percent) +
   mytheme +
-  theme(axis.text.x = element_text(angle = 45, size = 7, vjust = 0.5))
-  
-# in toy example we get the same results after running 1e-20 = eps, however
-# for more complex data sets we are not able to increase the eps further due to
-# numerical issues. We suspect that the algorithm used in the glmnet package 
-# (generalized linear model via penalized maximum likelihood), converges faster and
-# hence delivers more precise estimates than our implementation of the elastic net
-# with the MM algorithm.
+  theme(axis.text.x = element_text(angle = 45, size = 3, vjust = 0.5))
 
 
 # Development for Epsilon -------------------------------------------------
@@ -117,7 +110,7 @@ plot_MAPE_eps <- dfBetaCompareEps %>%
   geom_point() +
   geom_smooth(method = "lm") +
   scale_x_continuous(trans = "reverse", breaks = seq(iEpsStart - 1, iEpsEnd, -10)) +
-  labs(x = TeX("$log_{10} (\\epsilon)$")) +
+  labs(x = TeX("$log_{10} (\\epsilon)$"), y = "AE") +
   mytheme
 plot_MAPE_eps
 
