@@ -1,7 +1,7 @@
 # Setup -------------------------------------------------------------------
 # load packages
 if(!require(pacman)){install.packages("pacman")}
-p_load(tidyverse, simglm, rlist, latex2exp, glmnet)
+p_load(tidyverse, simglm, rlist, latex2exp, glmnet, knitr, formatR)
 
 # set seed
 set.seed(321)
