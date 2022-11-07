@@ -49,7 +49,8 @@ knitr::opts_chunk$set(echo = FALSE,
                       fig.width = 4.5,
                       fig.height = 3,
                       fig.align = "center",
-                      tidy.opts = list(width.cutoff = 50))
+                      tidy.opts = list(width.cutoff = 50),
+                      fig.pos="H")
 ```
 
 
@@ -139,18 +140,15 @@ First we find the optimal Lambda and Alpha value for our MM-algorithm
 ```{r message = FALSE, fig.cap="Changes in RMSE for each $ \\lambda$ using the best cross validated $ \\alpha$ MM"}
 k_fold_alpha_plots(mX,vy,nfolds,vBeta,dEps,dAlpha,lLambda)
 ```
-Then we compare to the optimal lambda and alpha value using the `glmnet` package. 
+Then, we compare to the optimal lambda and alpha value using the `glmnet` package. 
 
 ```{r message = FALSE, fig.cap="Changes in RMSE for each $ \\lambda$ using the best cross validated $ \\alpha$ GLMET"}
 plot_cv_GLMET(mX,vy,alpha=dAlpha)
 ```
-
+The plot shows that the optimal $\lambda$ using the `glmnet` is approximately $10^{12}$.
 \section{Conclusion and Discussion}
 
-The estimations based on the `glmnet` and MM algorithm differ with respect to the size of the coefficients. In addition, the prediction $RMSE$ of the MM algorithm is higher than the one of the `glmnet` implementation.
-
-
-# References
+To answer our research question, the estimations based on the `glmnet` and MM algorithm differ with respect to the size of the coefficients. In addition, the prediction $RMSE$ of the MM algorithm is higher than the one of the `glmnet` implementation. Regarding to k-fold cross validation results, using the MM algorithm results in higher RMSE than using the `glmnet` package. Moreover, for a fixed value of optimal alpha that we chose for the MM algorithm, the `glmnet` returns a lower RMSE on average (10 times lower than the MM algorithm). Another difference is that for the MM algorithm, a much lower $\lambda$ of 0.9102982 is need, compare to the lambda value of approximately $10^{12}$ using the `glmnet` package. One explanation is that the `glmnet` uses cyclical coordinate descent while our elastic net function uses the MM method. One limitation of our research is that we have not pinpointed the reasons why these two optimization methods differ. Future research can look into this limitation.
 
 \section{Code}
 
@@ -764,3 +762,4 @@ plot_optimal_alpha = k_fold_alpha_plots(mX, vy, nfolds, vBeta, dEps, dAlpha, lLa
 plot_cv_package = plot_cv_GLMET(mX, vy, alpha = dAlpha)
 ```
 
+# References
