@@ -128,7 +128,7 @@ We investigate this hypothesis by looking at the estimates' differences for lowe
 plot_MAPE_eps + labs(title = TeX("Median AE for decreasing $ \\epsilon$"))
 ```
 
-The uniform difference between the coefficients, and the result that this difference does not depend on the precision parameter $\epsilon$ leads us to believe that there are some structural differences between the `glmnet` and MM algorithm. However, as these discrepancies are low and similar across predictors, both algorithms seem to implement the same model.
+The uniform difference between the coefficients, and the result that this difference does not depend on the precision parameter $\epsilon$. This leads us to believe that there are some structural differences between the `glmnet` and MM algorithm. However, as these discrepancies are low and similar across predictors, both algorithms seem to implement the same model.
 
 \subsection{Test on real data using k-fold}
 
@@ -136,14 +136,16 @@ First we find the optimal Lambda and Alpha value for our MM-algorithm
 ```{r message = FALSE, fig.cap="Changes in RMSE for each $ \\lambda$ using the best cross validated $ \\alpha$ MM"}
 k_fold_alpha_plots(mX,vy,nfolds,vBeta,dEps,dAlpha,lLambda)
 ```
-Then we compare to the optimal lambda and alpha value using the GLMNET package. 
-
+Then we compare to the optimal lambda and alpha value using the `glmnet` package. 
 
 ```{r message = FALSE, fig.cap="Changes in RMSE for each $ \\lambda$ using the best cross validated $ \\alpha$ GLMET"}
 plot_cv_GLMET(mX,vy,alpha=dAlpha)
 ```
 
 \section{Conclusion and Discussion}
+
+The estimations based on the `glmnet` and MM algorithm differ with respect to the size of the coefficients. In addition, the prediction $RMSE$ of the MM algorithm is higher than the one of the `glmnet` implementation.
+
 
 # References
 
