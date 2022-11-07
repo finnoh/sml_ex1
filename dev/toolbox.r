@@ -158,7 +158,7 @@ ElasticNetMM <- function(mX, vY, dEps, dAlpha, dLambda) {
     ik <- ik + 1
     
     # perform one update
-    mD <- getD(vBeta0, dEps)
+    mD <- getD(vBeta0, 10e-8)
     mA <- getA(dA1, mD, dAlpha, dLambda)
     vBeta1 <- updateBeta(mX, vY, mA)
     

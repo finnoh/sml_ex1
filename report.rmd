@@ -2,7 +2,7 @@
 title: "SML: Exercise 2"
 author: "Thao Le, Finn-Ole Höner, Jason Wang, Ramon Snellen"
 date: "`r Sys.Date()`"
-output: pdf_document
+output: pdf_document2
 ulrcolor: CornflowerBlue
 header-includes:
   - \usepackage{float}
@@ -95,20 +95,21 @@ where
 
 \section{Results}
 
-In an estimation on simulated data, we get the same results for `glmnet` and our implementation based on the MM algorithm. However, for our estimation on the Dominick's Finer Food data, we get different estimates between these two implementations. Figure \@ref(fig:mape) shows the mean-absolute-percentage differences (MAPE) of the two implementations for the different predictors. For most the MAPE is close to $0\%$, but for a couple of predictors the MAPE is very high, especially for the variable `MORTGAGE` where the difference is around $100\%$.
+In an estimation on simulated data, we get the same results for `glmnet` and our implementation based on the MM algorithm. However, for our estimation on the Dominick's Finer Food data, we get different estimates between these two implementations. Figure 1 shows the mean-absolute-percentage differences (MAPE) of the two implementations for the different predictors. For most predictors, the $MAPE$ is around to $1 \%$.
 
 One explanation for this difference could lie in the algorithms' speed of convergence. For a given data set the MM algorithm might not converge fast enough to provide the same estimates as the `glmnet` implementation. In fact, the cyclical coordinate decent used in `glmnet` is a very efficient algorithm according to @friedman2010.
 
-```{r mape}
+```{r mape, fig.cap="Mean absolute percentage difference between glmnet and MM coefficients."}
 plot_coef_rmse + labs(title = "MAPE Coefficients GLMNET vs. MM")
 ```
 
-To explore this hypothesis, we investigate how the differences between the estimates develop for lower convergence thresholds $\epsilon$ of the MM algorithm. 
+We investigate this hypothesis by looking at the estimates' differences for lower convergence thresholds $\epsilon$ of the MM algorithm. Figure 2 shows the zero correlation between the Mean Absolute Error and the parameter $\epsilon$: This precision parameter appears to play no role in the discrepancy between the coefficients of `glmnet` and the MM algorithm.
 
-```{r}
-plot_MAPE_eps + labs(title = TeX("Median MAPE for decreasing $ \\epsilon$"))
+```{r mae, fig.cap="Development of MAE fo decreasing precision threshold $\\epsilon$."}
+plot_MAPE_eps + labs(title = TeX("Median MAE for decreasing $ \\epsilon$"))
 ```
 
+The uniform difference between the coefficients, and the result that this difference does not depend on the precision parameter $\epsilon$ leads us to believe that there are some structural differences between the `glmnet` and MM algorithm. However, as these discrepancies are low and similar across predictors, both algorithms seem to implement the same model.
 
 \section{Conclusion and Discussion}
 
