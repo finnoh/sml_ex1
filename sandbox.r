@@ -65,7 +65,7 @@ dfCompareBetaTable <- CompareEstimates(vBeta_glm, vBeta_MM)
 plot_coef_rmse <- dfCompareBetaTable %>% mutate(MAPE = MAPE(GLMNET, MM)) %>% 
   ggplot(aes(x = Predictor, y = MAPE)) +
   geom_bar(stat = "identity") +
-  labs(x = "", y = "MAPE") +
+  labs(x = "", y = "APE") +
   scale_x_discrete(breaks = vNameCoef, labels = abbreviate) +
   scale_y_continuous(labels = scales::percent) +
   mytheme +
