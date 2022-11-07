@@ -69,14 +69,7 @@ plot_coef_rmse <- dfCompareBetaTable %>% mutate(MAPE = MAPE(GLMNET, MM)) %>%
   scale_x_discrete(breaks = vNameCoef, labels = abbreviate) +
   scale_y_continuous(labels = scales::percent) +
   mytheme +
-  theme(axis.text.x = element_text(angle = 45, size = 7, vjust = 0.5))
-  
-# in toy example we get the same results after running 1e-20 = eps, however
-# for more complex data sets we are not able to increase the eps further due to
-# numerical issues. We suspect that the algorithm used in the glmnet package 
-# (generalized linear model via penalized maximum likelihood), converges faster and
-# hence delivers more precise estimates than our implementation of the elastic net
-# with the MM algorithm.
+  theme(axis.text.x = element_text(angle = 45, size = 3, vjust = 0.5))
 
 
 # Development for Epsilon -------------------------------------------------
