@@ -45,7 +45,7 @@ knitr::opts_chunk$set(echo = FALSE, message = FALSE, error = FALSE, warning = FA
 
 \section{Introduction}
 
-This report aims to find the best set of predictors for past cumulative grocery sales (in dollars) for Dominick's Finer Foods.
+This report aims to find the best prediction for past cumulative grocery sales (in dollars) for Dominick's Finer Foods based on an Elastic Net model by @zou2005.
 
 \section{Data}
 
@@ -95,11 +95,15 @@ where
 
 \section{Results}
 
-In an estimation on simulated data, we get the same results for `glmnet` and our implementation based on the MM algorithm. We suspect that the algorithm used in the glmnet package (generalized linear model via penalized maximum likelihood), converges faster and hence delivers more precise estimates than our implementation of the elastic net with the MM algorithm.
+In an estimation on simulated data, we get the same results for `glmnet` and our implementation based on the MM algorithm. However, for our estimation on the Dominick's Finer Food data, we get different estimates between these two implementations. Figure \@ref(fig:mape) shows the mean-absolute-percentage differences (MAPE) of the two implementations for the different predictors. For most the MAPE is close to $0\%$, but for a couple of predictors the MAPE is very high, especially for the variable `MORTGAGE` where the difference is around $100\%$.
 
-```{r}
+One explanation for this difference could lie in the algorithms' speed of convergence. For a given data set the MM algorithm might not converge fast enough to provide the same estimates as the `glmnet` implementation. In fact, the cyclical coordinate decent used in `glmnet` is a very efficient algorithm according to @friedman2010.
+
+```{r mape}
 plot_coef_rmse + labs(title = "MAPE Coefficients GLMNET vs. MM")
 ```
+
+To explore this hypothesis, we investigate how the differences between the estimates develop for lower convergence thresholds $\epsilon$ of the MM algorithm. 
 
 ```{r}
 plot_MAPE_eps + labs(title = TeX("Median MAPE for decreasing $ \\epsilon$"))

@@ -79,12 +79,12 @@ plot_coef_rmse <- dfCompareBetaTable %>% mutate(MAPE = MAPE(GLMNET, MM)) %>%
 
 
 # Development for Epsilon -------------------------------------------------
-iEpsStart <- 20
-iEpsEnd <- -50
-iEpsStep <- -10
+iEpsStart <- 1
+iEpsEnd <- -20
+iEpsStep <- -0.1
 
 # epsilon steps
-vEps <- 10^seq(iEpsStart, iEpsEnd)
+vEps <- 10^seq(iEpsStart, iEpsEnd, iEpsStep)
 lBeta_MM <- list()
 lCompare <- list()
 
@@ -104,11 +104,13 @@ dfBetaCompareEps <- dfBetaCompareEps %>%
 
 plot_MAPE_eps <- dfBetaCompareEps %>% 
   group_by(Epsilon) %>%
-  summarise(MAPE = median(MAPE),
+  summarise(MAPE = mean(MAPE),
             MAE = median(MAE)) %>%
   ggplot(aes(x = log10(Epsilon), y = MAPE)) +
-  geom_line() +
-  scale_x_continuous(trans = "reverse", breaks = seq(iEpsStart, iEpsEnd, iEpsStep)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  scale_x_continuous(trans = "reverse", breaks = seq(iEpsStart, iEpsEnd, -1)) +
+  scale_y_continuous(labels = scales::percent) +
   labs(x = TeX("$log_{10} (\\epsilon)$")) +
   mytheme
 plot_MAPE_eps
