@@ -170,15 +170,15 @@ ElasticNetMM <- function(mX, vY, dEps, dAlpha, dLambda) {
     dLossChange <- loss_change(vBeta0, vBeta1, vResiduals0, vResiduals1, dLambda, dAlpha)
     
     # output
-    print(paste0("Iteration: ", ik, " \n"))
-    print(paste0("Loss Change: ", dLossChange, " \n"))
-    
+    # print(paste0("Iteration: ", ik, " \n"))
+    # print(paste0("Loss Change: ", dLossChange, " \n"))
+    # 
     # update the beta
     vBeta0 <- vBeta1
   }
   
-  print("Beta Estimate")
-  print(vBeta0)
+  # print("Beta Estimate")
+  # print(vBeta0)
   return(vBeta0)
 }
 #' MAPE
@@ -213,5 +213,92 @@ CompareEstimates <- function(vBeta_A, vBeta_B, vColNames = c("GLMNET", "MM", "Pr
   colnames(dfCompareBetaTable) <- vColNames
   
   return(dfCompareBetaTable)
-  
 }
+
+
+#' Function to CV k_fold to look for optimal lambda
+#' 
+#' @param mX matrix, the predictor's data
+#' @param vY vector, the vector of the outcome variable
+#' @param nfolds integer, number of folds
+#' @param vBeta vector, the betas
+#' @param dEps double, the precision epsilon
+#' @param dAlpha double, the alpha parameter
+#' @param lLambda list, list of lambda parameter
+#' @return mRSS, matrix of Residual sum of squares, each column is for folds, each row is for each lambda value
+k_fold_lambda <- function(mX, vy, nfolds, vBeta, dEps, dAlpha,lLambda){
+  #Shuffle the data
+  data <-cbind(vy,mX)
+  data<-data[sample(nrow(data)),]
+  
+  #Create n equal folds, since the indexes are discrete, sometimes fold length differs by 1 observation
+  folds <- cut(seq(1,nrow(data)),breaks=nfolds,labels=FALSE)
+  
+  #Perform cross validation
+  mRSS= matrix(NA, nrow=50, ncol=nfolds) #Create a matrix, each column is the RSS for each test set of the folds
+  for(i in 1:ncol(mRSS)){
+    #Segment the data by fold 
+    testIndexes <- which(folds==i,arr.ind=TRUE)
+    testSet <- data[testIndexes, ]
+    trainSet <- data[-testIndexes, ]
+    #Use the test and train data partitions on Elastic net model
+    y_train <- trainSet[,1]
+    y_test <- testSet[,1]
+    X_train <- scale(trainSet[,-1])
+    X_test <- scale(testSet[,-1])
+    
+    lRSS = rep(NA, nrow(mRSS))
+    for (j in 1:nrow(mRSS)){
+      #Calculate RSS for each lambda value
+      vBeta_new = ElasticNetMM(X_train, y_train, dEps, dAlpha, lLambda[j]) 
+      lRSS[j] =sum(residuals(y_test, X_test, vBeta_new)^2) # is this fine?
+    }
+    mRSS[,i]=lRSS #Insert RSS values into matrix
+  }
+  return(mRSS)
+}
+#' Function to get the root mean square errors for each lambda value
+#' 
+#' @param mRSS matrix, residual sum of squares over k-folds for each lambda value
+#' @return means list, root mean squared errors of each lambda
+root_mean <- function(mRSS){
+  means = sqrt(rowMeans(mRSS))
+  return(means)
+}
+
+#' Function for CV that looks for optimal lambda and alpha, produce 1 plot for each alpha value
+#' 
+#' @param mX matrix, the predictor's data
+#' @param vY vector, the vector of the outcome variable
+#' @param nfolds integer, number of folds
+#' @param vBeta vector, the betas
+#' @param dEps double, the precision epsilon
+#' @param lAlpha double, the alpha parameter
+#' @param lLambda double, the lambda parameter
+#' @return lRMSE_min, list of minimum root mean square error for each alpha
+
+k_fold_plots <- function(mX, vy, nfolds, vBeta, dEps, lAlpha,lLambda){
+  lRMSE_min=list()
+  for (a in 1:length(lAlpha)){
+    
+    mRSS = k_fold_lambda(mX, vy, nfolds, vBeta, dEps, lAlpha[a],lLambda)
+    
+    #get root mean square errors for each lambda value
+    means = root_mean(mRSS)
+    
+    #Get index of the min lambda
+    ind = which.min(means)
+    lambda_min = lLambda[ind]
+    cat("Alpha is: ", lAlpha[a],". The minimum lambda is: ", lambda_min, "\n", "The minimum RMSE is: ",  min(means),"\n")
+    lRMSE_min[a]=min(means)
+    
+    #Plot
+    df <- data.frame('RMSE'=means,'Log(Lambda)'=log(lLambda))
+    plot(df$Log.Lambda., df$RMSE, pch=10, main= paste(lAlpha[a]) ,ylab = "Root Mean-Squared Error", xlab= "Log Lambda",col="red") +abline(v=log(lambda_min), col="blue")
+  }
+  ind = which.min(lRMSE_min)
+  Alpha_min = lAlpha[ind]
+  cat("The alpha with minimum RMSE is: Alpha = ",Alpha_min)
+  return(lRMSE_min)
+}
+

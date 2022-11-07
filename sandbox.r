@@ -58,6 +58,7 @@ model_glm <- glmnet(x = mX, y = vY, alpha = dAlpha, lambda = dLambda,
                     intercept = FALSE, standardize = FALSE)
 vBeta_glm <- model_glm %>% coef() %>% as.matrix()
 vBeta_glm <- vBeta_glm[-1, ] 
+vNameCoef <- names(vBeta_glm)
 
 dfCompareBetaTable <- CompareEstimates(vBeta_glm, vBeta_MM)
 
