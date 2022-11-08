@@ -16,6 +16,6 @@ Matrix
 glmnet
 scales
 bookdown
-base
 knitr
 formatR
+png
